@@ -1,5 +1,6 @@
 import re
 
+
 if __name__ == "__main__":
     # Driver Code
     with open("./input.txt", "r") as file:
