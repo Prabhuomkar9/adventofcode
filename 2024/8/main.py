@@ -14,51 +14,48 @@ if __name__ == "__main__":
     with open("./test.txt" if args.test else "./input.txt", "r") as file:
         lines = file.read().strip().splitlines()
 
-    matrix = list(map(lambda l: [i for i in l], lines))
+    m, n = len(lines), len(lines[0])
 
     freq = collections.defaultdict(list)
 
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            if matrix[i][j] != ".":
-                freq[matrix[i][j]].append((i, j))
+    for i in range(len(lines)):
+        for j in range(len(lines[i])):
+            if lines[i][j] != ".":
+                freq[lines[i][j]].append((i, j))
 
-    ans1, ans2 = set(), set()
+    centreNodes = {a for v in freq.values() for a in v}
 
-    # TODO: logic has room for improvement
+    firstNodes, remainingNodes = set(), set()
 
-    for f in freq:
-        for i in range(len(freq[f])):
-            for j in range(i + 1, len(freq[f])):
-                dx = freq[f][j][0] - freq[f][i][0]
-                dy = freq[f][j][1] - freq[f][i][1]
-                x1, y1 = freq[f][i][0] - dx, freq[f][i][1] - dy
-                if x1 >= 0 and y1 >= 0 and x1 < len(matrix) and y1 < len(matrix[0]):
-                    ans1.add((x1, y1))
-                x2, y2 = freq[f][j][0] + dx, freq[f][j][1] + dy
-                if x2 >= 0 and y2 >= 0 and x2 < len(matrix) and y2 < len(matrix[0]):
-                    ans1.add((x2, y2))
+    for k, v in freq.items():
+        for i, a1 in enumerate(v):
+            for a2 in v[i + 1 :]:
+                dx = a2[0] - a1[0]
+                dy = a2[1] - a1[1]
 
-    for f in freq:
-        for i in range(len(freq[f])):
-            for j in range(i + 1, len(freq[f])):
-                dx = freq[f][j][0] - freq[f][i][0]
-                dy = freq[f][j][1] - freq[f][i][1]
-                x1, y1 = freq[f][i][0], freq[f][i][1]
-                while True:
-                    if x1 >= 0 and y1 >= 0 and x1 < len(matrix) and y1 < len(matrix[0]):
-                        ans2.add((x1, y1))
+                x1, y1 = a1
+                x1, y1 = x1 - dx, y1 - dy
+                if x1 >= 0 and y1 >= 0 and x1 < m and y1 < n:
+                    firstNodes.add((x1, y1))
+                    while True:
                         x1, y1 = x1 - dx, y1 - dy
-                    else:
-                        break
-                x2, y2 = freq[f][j][0], freq[f][j][1]
-                while True:
-                    if x2 >= 0 and y2 >= 0 and x2 < len(matrix) and y2 < len(matrix[0]):
-                        ans2.add((x2, y2))
-                        x2, y2 = x2 + dx, y2 + dy
-                    else:
-                        break
+                        if x1 >= 0 and y1 >= 0 and x1 < m and y1 < n:
+                            remainingNodes.add((x1, y1))
+                        else:
+                            break
 
+                x2, y2 = a2
+                x2, y2 = x2 + dx, y2 + dy
+                if x2 >= 0 and y2 >= 0 and x2 < m and y2 < n:
+                    firstNodes.add((x2, y2))
+                    while True:
+                        x2, y2 = x2 + dx, y2 + dy
+                        if x2 >= 0 and y2 >= 0 and x2 < m and y2 < n:
+                            remainingNodes.add((x2, y2))
+                        else:
+                            break
+
+    ans1, ans2 = firstNodes, centreNodes.union(firstNodes).union(remainingNodes)
     ans1, ans2 = len(ans1), len(ans2)
 
     print(ans1, ans2)
