@@ -1,7 +1,18 @@
+from argparse import ArgumentParser
+
+import bisect
+import collections
+import heapq
+import re
+
+
 if __name__ == "__main__":
     # Driver Code
-    with open("./input.txt", "r") as file:
-        lines = file.read().splitlines()
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true")
+    args = parser.parse_args()
+    with open("./test.txt" if args.test else "./input.txt", "r") as file:
+        lines = file.read().strip().splitlines()
 
     for i, line in enumerate(lines):
         if "^" in line:
@@ -33,6 +44,7 @@ if __name__ == "__main__":
 
         seen.add(currIdx)
 
+    # TODO: Iterate only over the path
     for i, line in enumerate(lines):
         for j, cell in enumerate(line):
             if cell != ".":

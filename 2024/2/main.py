@@ -1,11 +1,24 @@
+from argparse import ArgumentParser
+
+import bisect
+import collections
+import heapq
+import re
+
+
 if __name__ == "__main__":
     # Driver Code
-    with open("./input.txt", "r") as file:
-        lines = file.read().splitlines()
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true")
+    args = parser.parse_args()
+    with open("./test.txt" if args.test else "./input.txt", "r") as file:
+        lines = file.read().strip().splitlines()
+
+    reports = [list(map(int, line.split(" "))) for line in lines]
 
     ans1, ans2 = 0, 0
 
-    for report in (list(map(int, line.split(" "))) for line in lines):
+    for report in reports:
         diff = [report[i] - report[i - 1] for i in range(1, len(report))]
         sign = 1 if diff[0] > 0 else -1
 

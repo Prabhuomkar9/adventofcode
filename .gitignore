@@ -1,3 +1,5 @@
-**
+/.venv
+.env
 
-!**/main.py
+**/*input*.txt
+**/*test*.txt

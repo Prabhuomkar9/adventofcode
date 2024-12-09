@@ -1,10 +1,21 @@
-from bisect import bisect
+from argparse import ArgumentParser
+
+import bisect
+import collections
+import heapq
+import re
 
 
 if __name__ == "__main__":
     # Driver Code
-    with open("./input.txt", "r") as file:
-        content = file.read()
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true")
+    args = parser.parse_args()
+    with open("./test.txt" if args.test else "./input.txt", "r") as file:
+        lines = file.read().strip().splitlines()
+
+    # TODO: logic has room for improvement
+    content = lines[0]
 
     fileSystem, i, isBlock = [], 0, True
     emptyBlocks = []
@@ -36,7 +47,7 @@ if __name__ == "__main__":
     ans2FileSystem = fileSystem.copy()
 
     for f in reversed(fileBlocks):
-        i = bisect(emptyBlocks, f)
+        i = bisect.bisect(emptyBlocks, f)
         for i, e in enumerate(emptyBlocks[:i]):
             if e[1] >= f[1]:
                 (

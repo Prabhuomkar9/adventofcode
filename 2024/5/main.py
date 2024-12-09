@@ -1,15 +1,22 @@
-from collections import defaultdict
-from heapq import heapify, heappop
+from argparse import ArgumentParser
+
+import bisect
+import collections
+import heapq
+import re
 
 
 if __name__ == "__main__":
     # Driver Code
-    with open("./input.txt", "r") as file:
-        lines = file.read().splitlines()
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true")
+    args = parser.parse_args()
+    with open("./test.txt" if args.test else "./input.txt", "r") as file:
+        lines = file.read().strip().splitlines()
 
     idx = lines.index("")
 
-    rules = defaultdict(set)
+    rules = collections.defaultdict(set)
     for line in lines[:idx]:
         l, r = line.split("|")
         rules[l].add(r)
@@ -34,8 +41,8 @@ if __name__ == "__main__":
         if all(page[i] < page[i + 1] for i in range(n - 1)):
             ans1 += int(page[n // 2])
         else:
-            heapify(page)
-            page = [heappop(page) for _ in range(n)]
+            heapq.heapify(page)
+            page = [heapq.heappop(page) for _ in range(n)]
             ans2 += int(page[n // 2])
 
     print(ans1, ans2)
