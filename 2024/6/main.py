@@ -44,32 +44,29 @@ if __name__ == "__main__":
 
         seen.add(currIdx)
 
-    # TODO: Iterate only over the path
-    for i, line in enumerate(lines):
-        for j, cell in enumerate(line):
-            if cell != ".":
-                continue
+    seen.remove(idx)
 
-            currIdx = idx
-            direction = "u"
-            seen = set()
+    for i, j in seen:
+        currIdx = idx
+        direction = "u"
+        seen = set()
 
-            while True:
-                dx, dy = iChanges[direction]
-                dx, dy = dx + currIdx[0], dy + currIdx[1]
+        while True:
+            dx, dy = iChanges[direction]
+            dx, dy = dx + currIdx[0], dy + currIdx[1]
 
-                if not (0 <= dx < m and 0 <= dy < n):
-                    break
+            if not (0 <= dx < m and 0 <= dy < n):
+                break
 
-                if lines[dx][dy] == "#" or (dx, dy) == (i, j):
-                    direction = dChanges[direction]
-                else:
-                    currIdx = (dx, dy)
+            if lines[dx][dy] == "#" or (dx, dy) == (i, j):
+                direction = dChanges[direction]
+            else:
+                currIdx = (dx, dy)
 
-                if (currIdx, direction) in seen:
-                    ans2 += 1
-                    break
+            if (currIdx, direction) in seen:
+                ans2 += 1
+                break
 
-                seen.add((currIdx, direction))
+            seen.add((currIdx, direction))
 
     print(ans1, ans2)
