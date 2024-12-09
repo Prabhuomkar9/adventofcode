@@ -1,8 +1,8 @@
 #!.venv/bin/python3
 from argparse import ArgumentParser
 
-import subprocess
 import os
+import subprocess
 
 
 parser = ArgumentParser(description="Execute a solution")

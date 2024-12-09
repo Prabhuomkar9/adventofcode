@@ -2,8 +2,9 @@
 from argparse import ArgumentParser
 from dotenv import load_dotenv
 
-import requests
 import os
+import requests
+import shutil
 
 
 load_dotenv()
@@ -18,7 +19,6 @@ parser.add_argument("-y", "--year", type=int, required=True)
 parser.add_argument("-d", "--day", type=int, required=True)
 args = parser.parse_args()
 
-
 try:
     url = f"https://adventofcode.com/{args.year}/day/{args.day}/input"
     response = requests.get(url, cookies={"session": session})
@@ -30,6 +30,12 @@ try:
         os.makedirs(dirPath, exist_ok=True)
         with open(filePath, "w") as file:
             file.write(response.text)
+
+        bolierPlatePath = os.path.join(os.getcwd(), "boilerplate.py")
+        sourceCodePath = os.path.join(dirPath, "main.py")
+
+        if not os.path.exists(sourceCodePath):
+            shutil.copyfile(bolierPlatePath, sourceCodePath)
     else:
         print("Failed to get input")
         print(response.text)
