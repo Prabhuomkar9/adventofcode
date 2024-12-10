@@ -1,9 +1,11 @@
 from argparse import ArgumentParser
 
+import functools
 import bisect
 import collections
 import heapq
 import re
+import typing
 
 
 if __name__ == "__main__":
@@ -14,71 +16,52 @@ if __name__ == "__main__":
     with open("./test.txt" if args.test else "./input.txt", "r") as file:
         lines = file.read().strip().splitlines()
 
-    equation = list(map(lambda l: l.split(), lines))
-
     ans1, ans2 = 0, 0
 
-    # TODO: logic has room for improvement
-    for res, *a in equation:
+    # TODO: logic has room for improvement, bottom up
+    for res, *a in [l.split() for l in lines]:
         res = int(res[:-1])
         a = list(map(int, a))
 
-        def dfs(i, cRes, op):
+        @functools.lru_cache(None)
+        def dfs(i: int, cRes: int, op: typing.Literal["+", "*", "|"], res: int):
             if cRes > res:
-                return 0
+                return (0, 0)
 
             if i == len(a):
-                return res if cRes == res else 0
+                return (res, res) if cRes == res else (0, 0)
 
-            nRes = cRes + a[i] if op == "+" else cRes * a[i]
+            match op:
+                case "+":
+                    nRes = cRes + a[i]
+                case "*":
+                    nRes = cRes * a[i]
+                case "|":
+                    nRes = int(f"{cRes}{a[i]}")
 
-            l = dfs(i + 1, nRes, "+")
-            if l > 0:
-                return l
-            else:
-                return dfs(i + 1, nRes, "*")
+            l, r = dfs(i + 1, nRes, "+", res)
 
-        l = dfs(1, a[0], "+")
-        if l > 0:
-            ans1 += l
-        else:
-            ans1 += dfs(1, a[0], "*")
+            if l <= 0:
+                l, _ = dfs(i + 1, nRes, "*", res)
 
-    for res, *a in equation:
-        res = int(res[:-1])
-        a = list(map(int, a))
+            if r <= 0:
+                _, r = dfs(i + 1, nRes, "*", res)
+                if r <= 0:
+                    _, r = dfs(i + 1, nRes, "|", res)
 
-        def dfs(i, cRes, op):
-            if cRes > res:
-                return 0
+            return l, r
 
-            if i == len(a):
-                return res if cRes == res else 0
+        l, r = dfs(1, a[0], "+", res)
 
-            nRes = (
-                cRes + a[i]
-                if op == "+"
-                else cRes * a[i] if op == "*" else int(f"{cRes}{a[i]}")
-            )
+        if l <= 0:
+            l, _ = dfs(1, a[0], "*", res)
 
-            l = dfs(i + 1, nRes, "+")
-            if l > 0:
-                return l
-            else:
-                r = dfs(i + 1, nRes, "*")
-                if r > 0:
-                    return r
-                else:
-                    return dfs(i + 1, nRes, "|")
+        if r <= 0:
+            _, r = dfs(1, a[0], "*", res)
+            if r <= 0:
+                _, r = dfs(1, a[0], "|", res)
 
-        l = dfs(1, a[0], "+")
-        if l > 0:
-            ans2 += l
-        else:
-            r = dfs(1, a[0], "*")
-            if r > 0:
-                ans2 += r
-            else:
-                ans2 += dfs(1, a[0], "|")
+        ans1 += l
+        ans2 += r
 
     print(ans1, ans2)
