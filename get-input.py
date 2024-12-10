@@ -25,11 +25,14 @@ try:
 
     if response.status_code == 200:
         dirPath = os.path.join(os.getcwd(), f"{args.year}", f"{args.day}")
-        filePath = os.path.join(dirPath, "input.txt")
+        inputPath = os.path.join(dirPath, "input.txt")
+        testPath = os.path.join(dirPath, "test.txt")
 
         os.makedirs(dirPath, exist_ok=True)
-        with open(filePath, "w") as file:
+        with open(inputPath, "w") as file:
             file.write(response.text)
+        with open(testPath, "x") as file:
+            pass
 
         bolierPlatePath = os.path.join(os.getcwd(), "boilerplate.py")
         sourceCodePath = os.path.join(dirPath, "main.py")
