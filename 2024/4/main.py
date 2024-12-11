@@ -2,8 +2,11 @@ from argparse import ArgumentParser
 
 import bisect
 import collections
+import functools
 import heapq
 import re
+import time
+import typing
 
 
 if __name__ == "__main__":
@@ -13,6 +16,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     with open("./test.txt" if args.test else "./input.txt", "r") as file:
         lines = file.read().strip().splitlines()
+    st = time.time()
 
     m, n = len(lines), len(lines[0])
 
@@ -56,4 +60,5 @@ if __name__ == "__main__":
             if lttrb in ["MS", "SM"] and lbtrt in ["MS", "SM"]:
                 ans2 += 1
 
-    print(ans1, ans2)
+    et = time.time()
+    print("-t" if args.test else "-i", "t:", round((et - st), 4), ans1, ans2)
