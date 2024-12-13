@@ -26,23 +26,26 @@ if __name__ == "__main__":
 
     trails = collections.defaultdict(set)
 
-    def dfs(i: int, j: int, height: int, startIdx: tuple[int, int], movement: str):
-        if lines[i][j] != f"{height}":
-            return
-
-        if height == 9:
-            trails[startIdx].add((movement, (i, j)))
-            trails[(i, j)].add(startIdx)
-            return
-
-        for d, (di, dj) in direction.items():
-            di, dj = i + di, j + dj
-            if 0 <= di < m and 0 <= dj < n:
-                dfs(di, dj, height + 1, startIdx, movement + d)
-
     for i in range(m):
         for j in range(n):
-            dfs(i, j, 0, (i, j), "")
+            stack = collections.deque()
+            stack.append((i, j, 0, ""))
+
+            while stack:
+                ci, cj, h, movement = stack.pop()
+
+                if lines[ci][cj] != f"{h}":
+                    continue
+
+                if h == 9:
+                    trails[(i, j)].add((movement, (ci, cj)))
+                    trails[(ci, cj)].add((i, j))
+                    continue
+
+                for d, (di, dj) in direction.items():
+                    di, dj = ci + di, cj + dj
+                    if 0 <= di < m and 0 <= dj < n:
+                        stack.append((di, dj, h + 1, movement + d))
 
     ans1, ans2 = 0, 0
 
