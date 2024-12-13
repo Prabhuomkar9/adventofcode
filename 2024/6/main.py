@@ -1,3 +1,5 @@
+#!.venv/bin/python3
+
 from argparse import ArgumentParser
 
 import bisect
