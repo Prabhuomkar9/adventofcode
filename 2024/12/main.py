@@ -22,36 +22,43 @@ if __name__ == "__main__":
 
     m, n = len(lines), len(lines[0])
 
-    regions = collections.defaultdict(list)
+    regions = collections.defaultdict(set)
     edges = collections.defaultdict(list)
+
     visitedPlot = set()
-
-    def dfs(i: int, j: int, k: int):
-        visitedPlot.add((i, j))
-        regions[k].append((i, j))
-        for di, d in [(-1, "u"), (1, "d")]:
-            di += i
-            if 0 <= di < m and lines[i][j] == lines[di][j]:
-                if (di, j) not in visitedPlot:
-                    dfs(di, j, k)
-            else:
-                edges[k].append(((di + i) / 2, j, d))
-        for dj, d in [(-1, "l"), (1, "r")]:
-            dj += j
-            if 0 <= dj < n and lines[i][j] == lines[i][dj]:
-                if (i, dj) not in visitedPlot:
-                    dfs(i, dj, k)
-            else:
-                edges[k].append((i, (dj + j) / 2, d))
-
-    k = 0
 
     for i in range(m):
         for j in range(n):
             if (i, j) in visitedPlot:
                 continue
-            k += 1
-            dfs(i, j, k)
+
+            stack = collections.deque()
+            stack.append((i, j))
+            r = f"{i},{j}"
+
+            while stack:
+                ci, cj = stack.pop()
+                if (ci, cj) in visitedPlot:
+                    continue
+
+                visitedPlot.add((ci, cj))
+                regions[r].add((ci, cj))
+
+                for di, d in [(-1, "u"), (1, "d")]:
+                    di += ci
+                    if 0 <= di < m and lines[ci][cj] == lines[di][cj]:
+                        if (di, cj) not in visitedPlot:
+                            stack.append((di, cj))
+                    else:
+                        edges[r].append(((di + ci) / 2, cj, d))
+
+                for dj, d in [(-1, "l"), (1, "r")]:
+                    dj += cj
+                    if 0 <= dj < n and lines[ci][cj] == lines[ci][dj]:
+                        if (ci, dj) not in visitedPlot:
+                            stack.append((ci, dj))
+                    else:
+                        edges[r].append((ci, (dj + cj) / 2, d))
 
     ans1, ans2 = 0, 0
 
