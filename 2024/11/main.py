@@ -27,6 +27,7 @@ if __name__ == "__main__":
 
     ans1, ans2 = 0, 0
 
+    # TODO: logic has room for improvement
     for i in range(75):
         f = stones.copy()
         for k, v in f.items():
