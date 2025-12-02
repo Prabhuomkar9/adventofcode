@@ -64,7 +64,7 @@ class Cli:
 
         return inquirer.select(  # type: ignore
             message="Select Year:",
-            choices=[Choice(value=year, name=year) for year in years],
+            choices=[Choice(value=int(year), name=year) for year in years],
         ).execute()
 
     def __get_day(self, year: int):
@@ -77,17 +77,17 @@ class Cli:
 
         return inquirer.select(  # type: ignore
             message="Select Day:",
-            choices=[Choice(value=f"{day}", name=f"{day}") for day in days],
+            choices=[Choice(value=day, name=f"{day}") for day in days],
         ).execute()
 
     def __get_part(self):
         return inquirer.select(  # type: ignore
             message="Select Part:",
             choices=[
-                Choice(value="1", name="Part 1"),
-                Choice(value="2", name="Part 2"),
+                Choice(value=1, name="Part 1"),
+                Choice(value=2, name="Part 2"),
             ],
-            default="1",
+            default=1,
         ).execute()
 
     def __seed_config(self):
@@ -139,7 +139,8 @@ class Cli:
             Utils.create_actual_input(year, day, actual_input)
             source_code_path = Utils.create_boilerplate(year, day)
 
-            self.config["puzzles"][f"{year}"].insert(0, f"{day}")
+            if day not in self.config["puzzles"][f"{year}"]:
+                self.config["puzzles"][f"{year}"].insert(0, day)
 
             Utils.save_config(self.config)
 
