@@ -1,5 +1,3 @@
-#!.venv/bin/python3
-
 from argparse import ArgumentParser
 from dotenv import load_dotenv
 
