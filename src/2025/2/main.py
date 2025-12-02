@@ -19,33 +19,30 @@ if __name__ == "__main__":
     st = time.time()
 
     # Prepare the data here
-    ranges = list(map(lambda x: x.split("-"), lines[0].split(",")))
+    ranges = list(map(lambda x: list(map(int, x.split("-"))), lines[0].split(",")))
 
     ans1, ans2 = 0, 0
 
     # Logic goes here
     for r in ranges:
-        for i in range(int(r[0]), int(r[1]) + 1):
-            s = str(i)
+        for num in range(r[0], r[1] + 1):
+            s = str(num)
             n = len(s)
-
-            if s[: n // 2] == s[n // 2 :]:
-                ans1 += int(s)
 
             for k in range(2, n + 1):
                 if n % k != 0:
                     continue
 
-                k = n // k
+                pat_len = n // k
 
-                pat = s[:k]
+                pat = s[:pat_len]
 
-                for y in range(0, len(s), k):
-                    if s[y : y + k] != pat:
+                for y in range(0, n, pat_len):
+                    if s[y : y + pat_len] != pat:
                         break
                 else:
-                    # if k == 2:
-                    #     ans1 += int(s)
+                    if k == 2:
+                        ans1 += int(s)
                     ans2 += int(s)
                     break
 
