@@ -6,10 +6,10 @@ I started solving advent of code since 2024
 
 ## Project Setup
 
-### Before usage
+### Pre-Usage
 
-- `python3 -m venv .venv`
-- `source .venv/bin/activate`
+- `python -m venv .venv`
+- Activate the `venv`
 - `pip install -r requirements.txt`
 
 ### Usage
@@ -18,21 +18,18 @@ I started solving advent of code since 2024
 
 - `cp .env.example .env`
 - Authenticate at [Advent of Code](https://adventofcode.com)
-- Copy `session` cookie from browser to `.env`
+- Copy `session` cookie from browser to `SESSION` in `.env`
 
 #### Generally
 
-- `./get-input.py -y <YEAR> -d <DAY>`
-- If needed copy test input to `<YEAR>/<DAY>/test.txt`
-- Write code in `<YEAR>/<DAY>/main.py`
-- `./run-solution.py -y <YEAR> -d <DAY> [-t,--test]`
+- `python ./config/cli.py`
+- Write code in `src/<YEAR>/<DAY>/main.py`
 
 ### After usage
 
-- `deactivate`
+- Deactivate the `venv`
 
 ## Note
 
-- All commands in this file are unix based, convert if necessary
-- `boilerplate.py` contains boilerplate for `<YEAR>/<DAY>/main.py`
-- If `-t` flag is passed to `./run-solution.py`, test input will be used
+- `template/python.py` contains boilerplate for `src/<YEAR>/<DAY>/main.py`
+- Test input is not readily available for scrapping in AoC, hence be aware of wrong test case

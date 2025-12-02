@@ -19,15 +19,18 @@ if __name__ == "__main__":
     st = time.time()
 
     # Prepare the data here
+    ranges = list(map(lambda x: x.split("-"), lines[0].split(",")))
 
     ans1, ans2 = 0, 0
 
-    ranges = list(map(lambda x: x.split("-"), lines[0].split(",")))
-
+    # Logic goes here
     for r in ranges:
         for i in range(int(r[0]), int(r[1]) + 1):
             s = str(i)
             n = len(s)
+
+            if s[: n // 2] == s[n // 2 :]:
+                ans1 += int(s)
 
             for k in range(2, n + 1):
                 if n % k != 0:
@@ -35,17 +38,14 @@ if __name__ == "__main__":
 
                 k = n // k
 
-                flag = True
                 pat = s[:k]
 
                 for y in range(0, len(s), k):
                     if s[y : y + k] != pat:
-                        flag = False
                         break
-
-                if flag:
-                    if k == 2:
-                        ans1 += int(s)
+                else:
+                    # if k == 2:
+                    #     ans1 += int(s)
                     ans2 += int(s)
                     break
 
