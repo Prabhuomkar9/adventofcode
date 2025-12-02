@@ -4,4 +4,7 @@
 **/*input*.txt
 **/*test*.txt
 
+**/__pycache__/
+**/*.pyc
+
 config.json
