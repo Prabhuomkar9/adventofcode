@@ -5,7 +5,10 @@ import re
 from utils import Utils
 
 
-class WebClient:
+class Client:
+    """
+    Client for interacting with Advent of Code"""
+
     base_url = "https://adventofcode.com"
 
     def __init__(self, config: dict) -> None:
@@ -44,7 +47,8 @@ class WebClient:
 
     def get_days(self, year: int):
         """
-        Get available days for a given year from Advent of Code"""
+        Get available days for a given year from Advent of Code
+        """
         url = f"{self.base_url}/{year}"
         response = requests.get(url)
 
@@ -73,7 +77,8 @@ class WebClient:
 
     def check_day(self, year: int, day: int):
         """
-        Check if a given day exists for a given year"""
+        Check if a given day exists for a given year
+        """
         url = f"{self.base_url}/{year}/day/{day}"
         response = requests.get(url)
 
@@ -151,8 +156,6 @@ class WebClient:
             raise Exception("Failed to submit solution: no span tag found")
 
         if span_tag.has_attr("class"):
-            # TODO: remove the print
-            print("here:", span_tag["class"])
             if "day-success" in span_tag["class"]:
                 return (True, article_tag.text.strip())
 

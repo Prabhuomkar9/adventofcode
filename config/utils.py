@@ -6,14 +6,19 @@ from pydantic import BaseModel, ValidationError
 
 
 class Config(BaseModel):
+    # TODO(Omkar): Better config structure
     puzzles: dict[str, list[int]]
 
 
 class Utils:
+    # TODO(Omkar): Better template
     template_path = os.path.join(os.getcwd(), "template", "python.py")
 
     @staticmethod
     def get_session():
+        """
+        Retrieve the session token from environment variables.
+        """
         load_dotenv()
 
         session = os.getenv("SESSION")
@@ -25,6 +30,9 @@ class Utils:
 
     @staticmethod
     def get_config():
+        """
+        Retrieve the configuration from config.json file.
+        """
         try:
             if os.path.exists("config.json"):
                 with open("config.json", "r") as file:
@@ -48,6 +56,9 @@ class Utils:
 
     @staticmethod
     def save_config(config: dict):
+        """
+        Save the configuration to config.json file.
+        """
         try:
             current_config = Utils.get_config()
             current_config.update(config)
@@ -59,13 +70,19 @@ class Utils:
             exit(1)
 
     @staticmethod
-    def reset_config() -> None:
+    def reset_config():
+        """
+        Reset the configuration file to an empty state.
+        """
         config = Utils.get_config()
 
         Utils.save_config(config)
 
     @staticmethod
     def get_puzzle_dir_path(year: int, day: int) -> str:
+        """
+        Get the directory path for a given year's day puzzle.
+        """
         return os.path.join(os.getcwd(), "src", f"{year}", f"{day}")
 
     @staticmethod
@@ -75,6 +92,9 @@ class Utils:
         content: str,
         file_type: Literal["source_code", "actual_input", "test_input"],
     ):
+        """
+        Create a puzzle file (source code, actual input, or test input) for a given year and day.
+        """
         puzzle_dir_path = Utils.get_puzzle_dir_path(year, day)
 
         file_path = os.path.join(
@@ -98,6 +118,9 @@ class Utils:
 
     @staticmethod
     def create_boilerplate(year: int, day: int):
+        """
+        Create boilerplate source code for a given year and day.
+        """
         with open(Utils.template_path, "r") as template_file:
             return Utils.__create_puzzle_file(
                 year, day, template_file.read(), file_type="source_code"
@@ -105,10 +128,16 @@ class Utils:
 
     @staticmethod
     def create_actual_input(year: int, day: int, content: str):
+        """
+        Create actual input file for a given year and day.
+        """
         return Utils.__create_puzzle_file(year, day, content, file_type="actual_input")
 
     @staticmethod
     def create_test_input(year: int, day: int, content: str):
+        """
+        Create test input file for a given year and day.
+        """
         return Utils.__create_puzzle_file(year, day, content, file_type="test_input")
 
 

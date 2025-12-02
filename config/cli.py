@@ -5,32 +5,36 @@ import os
 import time
 
 from utils import Utils
-from webClient import WebClient
+from client import Client
 
 
 class Cli:
+    """
+    Command Line Interface for Advent of Code interactions
+    """
+
     def __init__(self) -> None:
         self.config = Utils.get_config()
-        self.web_client = WebClient(self.config)
+        self.web_client = Client(self.config)
 
         action = inquirer.select(  # type: ignore
             message="Select Action:",
             choices=[
                 Choice(
-                    value="run_solution",
-                    name="Run Solution",
+                    value="seed_config",
+                    name="Seed Config",
                 ),
                 Choice(
                     value="get_puzzle",
                     name="Get Puzzle",
                 ),
                 Choice(
-                    value="submit_solution",
-                    name="Submit Solution",
+                    value="run_solution",
+                    name="Run Solution",
                 ),
                 Choice(
-                    value="seed_config",
-                    name="Seed Config",
+                    value="submit_solution",
+                    name="Submit Solution",
                 ),
             ],
             default="run_solution",
@@ -39,14 +43,17 @@ class Cli:
         match action:
             case "seed_config":
                 self.__seed_config()
+            case "get_puzzle":
+                self.__get_puzzle()
             case "run_solution":
                 self.__run_solution()
             case "submit_solution":
                 self.__submit_solution()
-            case "get_puzzle":
-                self.__get_puzzle()
 
     def __get_input_type(self):
+        """
+        Get the type of input to work with.
+        """
         return inquirer.select(  # type: ignore
             message="Select Input Type:",
             choices=[
@@ -57,17 +64,28 @@ class Cli:
         ).execute()
 
     def __get_year(self):
+        """
+        Get the year of the puzzle to work with.
+        """
         years = self.config["puzzles"].keys()
         if not years:
             print("No years found in config. Please seed the config first.")
             exit(1)
 
+        latest_year = max(int(year) for year in years)
+        new_year = latest_year + 1
+
         return inquirer.select(  # type: ignore
             message="Select Year:",
-            choices=[Choice(value=int(year), name=year) for year in years],
+            choices=[Choice(value=new_year, name=f"{new_year}(New)")]
+            + [Choice(value=int(year), name=year) for year in years],
+            default=latest_year,
         ).execute()
 
     def __get_day(self, year: int):
+        """
+        Get the day of the puzzle to work with.
+        """
         days = self.config["puzzles"][f"{year}"]
         if not days:
             print(
@@ -75,12 +93,20 @@ class Cli:
             )
             exit(1)
 
+        latest_day = max(days)
+        new_day = latest_day + 1
+
         return inquirer.select(  # type: ignore
             message="Select Day:",
-            choices=[Choice(value=day, name=f"{day}") for day in days],
+            choices=[Choice(value=new_day, name=f"{new_day}(New)")]
+            + [Choice(value=day, name=f"{day}") for day in days],
+            default=latest_day,
         ).execute()
 
     def __get_part(self):
+        """
+        Get the part of the puzzle to work with.
+        """
         return inquirer.select(  # type: ignore
             message="Select Part:",
             choices=[
@@ -91,6 +117,9 @@ class Cli:
         ).execute()
 
     def __seed_config(self):
+        """
+        Seed the configuration file with available years and days.
+        """
         years = self.web_client.get_years()
 
         config = {"puzzles": {}}
@@ -101,29 +130,10 @@ class Cli:
 
         Utils.save_config(config)
 
-    def __run_solution(self):
-        input_type = self.__get_input_type()
-        year = self.__get_year()
-        day = self.__get_day(year)
-
-        puzzle_dir_path = Utils.get_puzzle_dir_path(year, day)
-
-        testCommand = ["python", "main.py", "-t"]
-        actualCommand = ["python", "main.py"]
-
-        match input_type:
-            case "test":
-                a = subprocess.run(testCommand, check=True, cwd=puzzle_dir_path)
-                print(a)
-            case "actual":
-                a = subprocess.run(actualCommand, check=True, cwd=puzzle_dir_path)
-                print(a)
-
-    def __submit_solution(self):
-        part = self.__get_part()
-        self.__run_solution()
-
     def __get_puzzle(self):
+        """
+        Get a new puzzle for a specific year and day.
+        """
         year = self.__get_year()
         day = self.__get_day(year)
 
@@ -147,6 +157,56 @@ class Cli:
             print(f"New puzzle found: {source_code_path}")
         else:
             print("No new puzzle found.")
+
+    def __code_runner(self, year: int, day: int, input_type: str):
+        """
+        Run the solution code for a specific year and day with selected input type.
+        """
+        puzzle_dir_path = Utils.get_puzzle_dir_path(year, day)
+
+        testCommand = ["python", "main.py", "-t"]
+        actualCommand = ["python", "main.py"]
+
+        process = subprocess.run(
+            testCommand if input_type == "test" else actualCommand,
+            check=True,
+            cwd=puzzle_dir_path,
+            capture_output=True,
+        )
+
+        stdout = process.stdout.decode()
+        if not stdout:
+            raise Exception("No output from solution.")
+
+        ans1, ans2 = stdout.splitlines()[0].split(" ")[3:5]
+
+        return (ans1, ans2)
+
+    def __run_solution(self):
+        """
+        Run the solution for a specific year and day with selected input type.
+        """
+        input_type = self.__get_input_type()
+        year = self.__get_year()
+        day = self.__get_day(year)
+
+        return self.__code_runner(year, day, input_type)
+
+    def __submit_solution(self):
+        """
+        Submit the solution for a specific year and day.
+        """
+        year = self.__get_year()
+        day = self.__get_day(year)
+        part = self.__get_part()
+
+        ans1, ans2 = self.__code_runner(year, day, "actual")
+
+        solved, text = self.web_client.submit_solution(
+            year, day, part, ans1 if part == 1 else ans2
+        )
+
+        print(f"{'SUCCESS' if solved else 'FAILURE'}:\n {text}")
 
 
 if __name__ == "__main__":
