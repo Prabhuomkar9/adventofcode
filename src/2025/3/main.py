@@ -29,24 +29,7 @@ if __name__ == "__main__":
 
         battery = []
 
-        idx = -1
-        curr = -1
-
-        for j in range(2):
-            for i in range(idx + 1, n - 1 + j):
-                if bank[i] > curr:
-                    idx, curr = i, bank[i]
-
-            battery.append(f"{curr}")
-            idx += 1
-            curr = bank[idx] if idx < n else 0
-
-        ans1 += int("".join(battery))
-
-        battery = []
-
-        idx = -1
-        curr = -1
+        idx, curr = -1, -1
 
         for j in range(12):
             for i in range(idx + 1, n - 11 + j):
@@ -54,9 +37,22 @@ if __name__ == "__main__":
                     idx, curr = i, bank[i]
 
             battery.append(f"{curr}")
-            idx += 1
-            curr = bank[idx] if idx < n else 0
 
+            if (idx := idx + 1) < n:
+                curr = bank[idx]
+
+        first, second = battery[0], battery[1]
+
+        for i in range(1, 11):
+            if battery[i] > first:
+                first, second = battery[i], battery[i + 1]
+            elif battery[i] > second:
+                second = battery[i]
+
+        if battery[11] > second:
+            second = battery[11]
+
+        ans1 += int(f"{first}{second}")
         ans2 += int("".join(battery))
 
     et = time.time()
