@@ -7,7 +7,8 @@ from utils import Utils
 
 class Client:
     """
-    Client for interacting with Advent of Code"""
+    Client for interacting with Advent of Code
+    """
 
     base_url = "https://adventofcode.com"
 
