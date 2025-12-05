@@ -178,6 +178,8 @@ class Cli:
         if not stdout:
             raise Exception("No output from solution.")
 
+        print(stdout)
+
         ans1, ans2 = stdout.splitlines()[0].split(" ")[3:5]
 
         return (ans1, ans2)
