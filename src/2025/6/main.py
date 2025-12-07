@@ -21,35 +21,43 @@ if __name__ == "__main__":
     st = time.time()
 
     # Prepare the data here
-    groups = re.findall(r"\+\s*|\*\s*", lines[-1])
 
     ans1, ans2 = 0, 0
 
     # Logic goes here
-    idx = 0
-    operator.add
+    j = 0
 
-    for g, group in enumerate(groups):
-        temp = 1 if group[0] == "*" else 0
-        op = operator.mul if group[0] == "*" else operator.add
+    l1 = collections.defaultdict(int)
+    l2 = collections.defaultdict(int)
+    op = operator.add if lines[-1][0] == "+" else operator.mul
 
-        l = collections.defaultdict(int)
+    while True:
+        flag = True
 
-        for line in lines[:-1]:
-            s = line[idx : idx + len(group) if g != len(groups) - 1 else None]
+        if j < len(lines[-1]) and lines[-1][j] in "*+":
+            ans1 += ([0] + list(accumulate(l1.values(), func=op)))[-1]
+            ans2 += ([0] + list(accumulate(l2.values(), func=op)))[-1]
 
-            temp = op(temp, int(s))
+            l1.clear()
+            l2.clear()
+            op = operator.add if lines[-1][j] == "+" else operator.mul
 
-            for i, c in enumerate(s):
+        for i in range(len(lines) - 1):
+            if j < len(lines[i]) and (c := lines[i][j]):
+                flag = False
                 if c.strip():
-                    l[i] *= 10
-                    l[i] += int(c)
+                    l1[i] *= 10
+                    l1[i] += int(c)
+                    l2[j] *= 10
+                    l2[j] += int(c)
 
-        ans1 += temp
+        j += 1
 
-        ans2 += list(accumulate(l.values(), func=op))[-1]
+        if flag:
+            break
 
-        idx += len(group)
+    ans1 += ([0] + list(accumulate(l1.values(), func=op)))[-1]
+    ans2 += ([0] + list(accumulate(l2.values(), func=op)))[-1]
 
     et = time.time()
     print("-t" if args.test else "-i", "t:", round((et - st), 4), ans1, ans2)
