@@ -14,43 +14,79 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-t", "--test", action="store_true")
     args = parser.parse_args()
-    # with open("./test.txt" if args.test else "./input.txt", "r") as file:
-    #     lines = file.read().strip().splitlines()
+    with open("./test.txt" if args.test else "./input.txt", "r") as file:
+        lines = file.read().strip().splitlines()
 
-    file = """7,1
-11,1
-11,7
-9,7
-9,5
-2,5
-2,3
-7,3
-"""
-    lines = file.strip().splitlines()
+    #     file = """7,1
+    # 11,1
+    # 11,7
+    # 9,7
+    # 9,5
+    # 2,5
+    # 2,3
+    # 7,3
+    # """
+    #     lines = file.strip().splitlines()
     st = time.time()
 
     # Prepare the data here
     cords = [tuple(map(int, line.split(",")[::-1])) for line in lines]
-    n = max(max(cords))
+
+    n = max(cords, key=lambda x: x[1])[0]
+    m = max(cords, key=lambda x: x[1])[1]
 
     ans1, ans2 = 0, 0
 
     # Logic goes here
-    x_limits, y_limits = {}, {}
+    cx, cy = 0, 0
 
     for x, y in cords:
-        print("x limits:")
-        for c in sorted(x_limits.items()):
-            print(c)
+        cx += x
+        cy += y
 
-        print("y limits:")
-        for c in sorted(y_limits.items()):
-            print(c)
+    cx /= len(cords)
+    cy /= len(cords)
 
-        print("\n\n")
-        print("Cords:", x, y)
+    n_cords = []
 
-        print("", end="")
+    for i in range(len(cords) - 1):
+        for j in range(i + 1, len(cords)):
+            x1, y1 = cords[i]
+            x2, y2 = cords[j]
+            d = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+            n_cords.append((-d, (x1, y1), (x2, y2)))
+
+    n_cords.sort()
+
+    seen = set()
+    m_cords = []
+
+    for _, (x1, y1), (x2, y2) in n_cords:
+        if (x1, y1) not in seen:
+            seen.add((x1, y1))
+            m_cords.append((x1, y1))
+        if (x2, y2) not in seen:
+            seen.add((x2, y2))
+            m_cords.append((x2, y2))
+
+    x_limits, y_limits = {}, {}
+
+    for i, (x, y) in enumerate(m_cords):
+        print(i, len(x_limits), len(y_limits))
+        x_limits_updates, y_limits_updates = set(), set()
+
+        # print("x limits:")
+        # for c in sorted(x_limits.items()):
+        #     print(c)
+
+        # print("y limits:")
+        # for c in sorted(y_limits.items()):
+        #     print(c)
+
+        # print("\n\n")
+        # print("Cords:", x, y)
+
+        # print("", end="")
 
         if x not in y_limits and y not in x_limits:
             y_limits[x] = (y, y)
@@ -59,28 +95,18 @@ if __name__ == "__main__":
             y_limits[x] = (y, y)
             t, b = x_limits[y]
             if x < t or x > b:
-                for dx in range(min(b, x), max(t, x) + 1):
-                    if dx in y_limits:
-                        l, r = y_limits[dx]
-                        if y < l or y > r:
-                            l, r = min(l, y), max(r, y)
-                            y_limits[dx] = (l, r)
-                    else:
-                        y_limits[dx] = (y, y)
+                y_limits_updates.update(
+                    (dx, y) for dx in range(min(b, x), max(t, x) + 1)
+                )
                 t, b = min(t, x), max(b, x)
                 x_limits[y] = (t, b)
         elif y not in x_limits:
             x_limits[y] = (x, x)
             l, r = y_limits[x]
             if y < l or y > r:
-                for dy in range(min(r, y), max(l, y) + 1):
-                    if dy in x_limits:
-                        t, b = x_limits[dy]
-                        if x < t or x > b:
-                            t, b = min(b, x), max(t, x)
-                            x_limits[dy] = (t, b)
-                    else:
-                        x_limits[dy] = (x, x)
+                x_limits_updates.update(
+                    (x, dy) for dy in range(min(r, y), max(l, y) + 1)
+                )
                 l, r = min(l, y), max(r, y)
                 y_limits[x] = (l, r)
         else:
@@ -91,63 +117,65 @@ if __name__ == "__main__":
                 continue
 
             if x < t or x > b:
-                for dx in range(min(b, x), max(t, x) + 1):
-                    if dx in y_limits:
-                        l, r = y_limits[dx]
-                        if y < l or y > r:
-                            l, r = min(l, y), max(r, y)
-                            y_limits[dx] = (l, r)
-                    else:
-                        y_limits[dx] = (y, y)
+                y_limits_updates.update(
+                    (dx, y) for dx in range(min(b, x), max(t, x) + 1)
+                )
                 t, b = min(t, x), max(b, x)
                 x_limits[y] = (t, b)
 
-            l, r = y_limits[x]
-            if y <= l or y >= r:
-                for dy in range(l, r + 1):
-                    if dy in x_limits:
-                        t, b = x_limits[dy]
-                        if x < t or x > b:
-                            t, b = min(b, x), max(t, x)
-                            x_limits[dy] = (t, b)
-                    else:
-                        x_limits[dy] = (x, x)
+            if y < l or y > r:
+                x_limits_updates.update(
+                    (x, dy) for dy in range(min(r, y), max(l, y) + 1)
+                )
                 l, r = min(l, y), max(r, y)
                 y_limits[x] = (l, r)
 
-    print("x limits:")
-    for c in sorted(x_limits.items()):
-        print(c)
+        while x_limits_updates:
+            x, dy = x_limits_updates.pop()
+            if dy in x_limits:
+                t, b = x_limits[dy]
+                if x < t or x > b:
+                    y_limits_updates.update(
+                        (dx, dy) for dx in range(min(b, x), max(t, x) + 1)
+                    )
+                    t, b = min(t, x), max(b, x)
+                    x_limits[dy] = (t, b)
+            else:
+                x_limits[dy] = (x, x)
 
-    print("y limits:")
-    for c in sorted(y_limits.items()):
-        print(c)
+        while y_limits_updates:
+            dx, y = y_limits_updates.pop()
+            if dx in y_limits:
+                l, r = y_limits[dx]
+                if y < l or y > r:
+                    x_limits_updates.update(
+                        (dx, dy) for dy in range(min(r, y), max(l, y) + 1)
+                    )
+                    l, r = min(l, y), max(r, y)
+                    y_limits[dx] = (l, r)
+            else:
+                y_limits[dx] = (y, y)
 
-    # for i in range(len(cords) - 1):
-    #     for j in range(i + 1, len(cords)):
-    #         x1, y1 = cords[i]
-    #         x2, y2 = cords[j]
+        while x_limits_updates:
+            x, dy = x_limits_updates.pop()
+            if dy in x_limits:
+                t, b = x_limits[dy]
+                if x < t or x > b:
+                    t, b = min(b, x), max(t, x)
+                    x_limits[dy] = (t, b)
+            else:
+                x_limits[dy] = (x, x)
 
-    #         if x1 == x2:
-    #             for dy in range(min(y1, y2), max(y1, y2) + 1):
-    #                 x_limits[dy] = (
-    #                     min(x_limits.get(dy, (x1, x1))[0], x1, x2),
-    #                     max(x_limits.get(dy, (x1, x1))[1], x1, x2),
-    #                 )
-    #         elif y1 == y2:
-    #             for dx in range(min(x1, x2), max(x1, x2) + 1):
-    #                 y_limits[dx] = (
-    #                     min(y_limits.get(dx, (y1, y1))[0], y1, y2),
-    #                     max(y_limits.get(dx, (y1, y1))[1], y1, y2),
-    #                 )
+    # print("\n\n")
+    # print("Final")
 
-    print("x limits:")
-    for c in sorted(x_limits.items()):
-        print(c)
+    # print("x limits:")
+    # for c in sorted(x_limits.items()):
+    #     print(c)
 
-    print("y limits:")
-    for c in sorted(y_limits.items()):
-        print(c)
+    # print("y limits:")
+    # for c in sorted(y_limits.items()):
+    #     print(c)
 
     def check(dx, dy):
         if dy not in x_limits or dx not in y_limits:
@@ -157,17 +185,17 @@ if __name__ == "__main__":
         if lx <= dx <= rx and ty <= dy <= by:
             return True
 
-    print("here")
-    with open("out.txt", "w") as f:
-        f.write("")
+    # print("here")
+    # with open("out.txt", "w") as f:
+    #     f.write("")
 
-    with open("out.txt", "a") as f:
-        for i in range(n + 1):
-            c = ""
-            for j in range(n + 1):
-                c += "X" if check(i, j) else "."
-            c += "\n"
-            f.write(c)
+    # with open("out.txt", "a") as f:
+    #     for i in range(n + 1):
+    #         c = ""
+    #         for j in range(n + 1):
+    #             c += "X" if check(i, j) else "."
+    #         c += "\n"
+    #         f.write(c)
 
     for i in range(len(cords) - 1):
         for j in range(i + 1, len(cords)):
@@ -177,7 +205,7 @@ if __name__ == "__main__":
             area = (abs(x2 - x1) + 1) * (abs(y2 - y1) + 1)
             ans1 = max(ans1, area)
 
-            if check(x1, y1) and check(x2, y2) and check(x1, y2) and check(x2, y1):
+            if check(x1, y2) and check(x2, y1):
                 ans2 = max(ans2, area)
 
     et = time.time()
