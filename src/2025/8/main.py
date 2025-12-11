@@ -36,40 +36,29 @@ if __name__ == "__main__":
 
     pq.sort()
 
-    circuits = [set() for _ in range(10 if args.test else 1000)]
+    circuits = []
 
-    for _, c1, c2 in pq[: 10 if args.test else 1000]:
-        flag = -1
-        for i in range(len(circuits)):
-            if flag == -1 and (
-                not circuits[i] or c1 in circuits[i] or c2 in circuits[i]
-            ):
-                circuits[i].add(c1)
-                circuits[i].add(c2)
-                flag = i
-            elif flag != -1 and (c1 in circuits[i] or c2 in circuits[i]):
-                circuits[flag] = circuits[flag].union(circuits[i])
-                circuits[i] = set()
-                break
+    for i, (_, c1, c2) in enumerate(pq):
+        insertedAt = -1
 
-    ans1 = math.prod(sorted(map(lambda c: len(c), circuits))[-3:])
+        for j in range(len(circuits)):
+            if c1 in circuits[j] or c2 in circuits[j]:
+                if insertedAt == -1:
+                    circuits[j].update([c1, c2])
+                    insertedAt = j
+                else:
+                    circuits[insertedAt].update(circuits[j])
+                    circuits[j] = set()
 
-    for _, c1, c2 in pq[10 if args.test else 1000 :]:
-        flag = -1
-        for i in range(len(circuits)):
-            if flag == -1 and (
-                not circuits[i] or c1 in circuits[i] or c2 in circuits[i]
-            ):
-                circuits[i].add(c1)
-                circuits[i].add(c2)
-                flag = i
-            elif flag != -1 and (c1 in circuits[i] or c2 in circuits[i]):
-                circuits[flag] = circuits[flag].union(circuits[i])
-                circuits[i] = set()
-                break
+        if insertedAt == -1:
+            circuits.append(set([c1, c2]))
 
-        a = [circuit for circuit in circuits if circuit]
-        if len(a) == 1 and len(a[0]) == len(cords):
+        circuits = list(filter(None, circuits))
+
+        if i == 9 if args.test else i == 999:
+            ans1 = math.prod(sorted(len(c) for c in circuits)[-3:])
+
+        if len(circuits[0]) == len(cords):
             ans2 = c1[0] * c2[0]
             break
 
