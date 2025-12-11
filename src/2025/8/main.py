@@ -32,11 +32,13 @@ if __name__ == "__main__":
             x1, y1, z1 = cords[i]
             x2, y2, z2 = cords[j]
             d = (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** 0.5
-            heapq.heappush(pq, (d, (x1, y1, z1), (x2, y2, z2)))
+            pq.append((d, (x1, y1, z1), (x2, y2, z2)))
+
+    pq.sort()
 
     circuits = [set() for _ in range(10 if args.test else 1000)]
 
-    for _, c1, c2 in heapq.nsmallest(10 if args.test else 1000, pq):
+    for _, c1, c2 in pq[: 10 if args.test else 1000]:
         flag = -1
         for i in range(len(circuits)):
             if flag == -1 and (
@@ -51,6 +53,25 @@ if __name__ == "__main__":
                 break
 
     ans1 = math.prod(sorted(map(lambda c: len(c), circuits))[-3:])
+
+    for _, c1, c2 in pq[10 if args.test else 1000 :]:
+        flag = -1
+        for i in range(len(circuits)):
+            if flag == -1 and (
+                not circuits[i] or c1 in circuits[i] or c2 in circuits[i]
+            ):
+                circuits[i].add(c1)
+                circuits[i].add(c2)
+                flag = i
+            elif flag != -1 and (c1 in circuits[i] or c2 in circuits[i]):
+                circuits[flag] = circuits[flag].union(circuits[i])
+                circuits[i] = set()
+                break
+
+        a = [circuit for circuit in circuits if circuit]
+        if len(a) == 1 and len(a[0]) == len(cords):
+            ans2 = c1[0] * c2[0]
+            break
 
     et = time.time()
     print("-t" if args.test else "-i", "t:", round((et - st), 4), ans1, ans2)
